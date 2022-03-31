@@ -5,7 +5,6 @@
 m = Map("network", translate("Switch"), translate("The network ports on this device can be combined to several <abbr title=\"Virtual Local Area Network\">VLAN</abbr>s in which computers can communicate directly with each other. <abbr title=\"Virtual Local Area Network\">VLAN</abbr>s are often used to separate different network segments. Often there is by default one Uplink port for a connection to the next greater network like the internet and other ports for a local network."))
 
 local fs = require "nixio.fs"
-local ut = require "luci.util"
 local nw = require "luci.model.network"
 local switches = { }
 
@@ -75,7 +74,7 @@ m.uci:foreach("network", "switch",
 		end
 
 		-- Parse some common switch properties from swconfig help output.
-		local swc = io.popen("swconfig dev %s help 2>/dev/null" % ut.shellquote(switch_name))
+		local swc = io.popen("swconfig dev %q help 2>/dev/null" % switch_name)
 		if swc then
 
 			local is_port_attr = false
@@ -188,8 +187,8 @@ m.uci:foreach("network", "switch",
 			for _, section in luci.util.spairs(
 				osections,
 				function(a, b)
-					return (tonumber(m:get(osections[a], has_vlan4k or "vlan")) or 9999)
-						<  (tonumber(m:get(osections[b], has_vlan4k or "vlan")) or 9999)
+					return (tonumber(m:get(osections[a], has_vlan4k or "vlan") or "") or 9999)
+						<  (tonumber(m:get(osections[b], has_vlan4k or "vlan") or "") or 9999)
 				end
 			) do
 				sections[#sections+1] = section
